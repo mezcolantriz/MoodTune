@@ -56,7 +56,7 @@ if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
     raise ValueError("Las credenciales de Spotify no están configuradas correctamente en el archivo .env")
 
 # Rutas de los archivos (usa rutas relativas)
-file_path = './data/for_spoty2.csv'  # Ruta relativa al archivo CSV de entrada
+file_path = './data/procesando/0_for_spoty_20250226_225400.csv'  # Ruta relativa al archivo CSV de entrada
 output_path = f'./data/procesando/0_for_spoty_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'  # Nombre dinámico para el archivo de salida
 
 # Cargar el archivo original
@@ -72,6 +72,7 @@ additional_columns = ['spotify_url', 'album_name', 'album_release_date', 'durati
 for col in additional_columns:
     if col not in df_result.columns:
         df_result[col] = None
+
 
 # Obtener token de autenticación de Spotify
 def get_spotify_token():
@@ -132,11 +133,14 @@ def search_spotify(artist, song, token):
 # Obtener el token de Spotify
 spotify_token = get_spotify_token()
 
-# Aplicar la función a cada fila y actualizar el DataFrame resultante
-for index, row in tqdm(df_result.iterrows(), total=len(df_result), desc="Procesando canciones"):
+# Filtrar solo las canciones que aún no tienen información de Spotify
+df_not_found = df_result[df_result['spotify_url'].isna() | (df_result['spotify_url'] == "")]
+
+# Aplicar la función solo a las filas filtradas
+for index, row in tqdm(df_not_found.iterrows(), total=len(df_not_found), desc="Reintentando canciones no encontradas"):
     details = search_spotify(row['artist_name'], row['song_name'], spotify_token)
     for col in additional_columns:
-        df_result.at[index, col] = details[col]
+        df_result.at[index, col] = details[col]  # Actualizar solo las filas filtradas
 
 # Guardar el resultado en un nuevo archivo CSV
 df_result.to_csv(output_path, index=False)
