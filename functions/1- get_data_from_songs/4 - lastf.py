@@ -20,7 +20,7 @@ BASE_URL = 'http://ws.audioscrobbler.com/2.0/'  # URL base de la API de Last.fm
 
 # 📂 **Definir rutas de archivos**
 input_folder = './data/procesando/'
-files = [f for f in os.listdir(input_folder) if f.startswith('0_for_spoty') and f.endswith('.csv')]
+files = [f for f in os.listdir(input_folder) if f.startswith('df_80-200_p7_spoty') and f.endswith('.csv')]
 if not files:
     raise FileNotFoundError("No se encontró ningún archivo que comience con '0_for_spoty' en la carpeta 'procesando'.")
 

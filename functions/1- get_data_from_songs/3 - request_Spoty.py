@@ -1,3 +1,4 @@
+import re
 import pandas as pd     # manipulación de datos
 import requests     # solicitudes HTTP
 from tqdm import tqdm # barra de progreso
@@ -56,11 +57,15 @@ if not SPOTIFY_CLIENT_ID or not SPOTIFY_CLIENT_SECRET:
     raise ValueError("Las credenciales de Spotify no están configuradas correctamente en el archivo .env")
 
 # Rutas de los archivos (usa rutas relativas)
-file_path = './data/for_spoty2.csv'  # Ruta relativa al archivo CSV de entrada
-output_path = f'./data/procesando/0_for_spoty_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'  # Nombre dinámico para el archivo de salida
+file_path = './data/procesando/df_80-200_p7.csv'  # Ruta relativa al archivo CSV de entrada
+output_path = f'./data/procesando/df_80-200_p7_spoty.csv'  # Nombre para el archivo de salida
 
 # Cargar el archivo original
 df = pd.read_csv(file_path)
+
+# Limpiar la columna 'lyrics' para eliminar saltos de línea y espacios extra
+if 'lyrics' in df.columns:
+    df['lyrics'] = df['lyrics'].apply(lambda x: re.sub(r'\s+', ' ', str(x).strip()) if pd.notna(x) else x)
 
 # Crear un DataFrame para almacenar los resultados
 df_result = df.copy()
